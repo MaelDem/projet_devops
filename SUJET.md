@@ -1,5 +1,11 @@
 # Club Poisson — Mise en production professionnelle
 
+Par groupes de 3-4 étudiants, forker le repo, m'inviter @thomasbouillon.
+
+Votre organisation dans git sera pris en compte dans la notation: utilisation des pull requests, organisation du repo suivant GitFlow.
+
+Une présentation de 20 minutes est attendue lors de la séance du 19/02 pour une démonstration des outils mis en place. Vous utiliserez cette présentation pour expliquer les points importants de votre solution. Un autre professeur se joindra à mes côtés pour vous écouter, ce professeur, dans le milieu de l'informatique n'a pas suivi notre cours. J'attends de vous un présentaiton à la fois complète et adaptée à votre public.
+
 ## Contexte
 
 L'association **Club Poisson** regroupe des passionnés d'aquariophilie de la région Nancéenne. Depuis deux ans, ils organisent des rencontres mensuelles, des ateliers de maintenance d'aquariums et des sorties découverte en milieu naturel. Jusqu'ici, la gestion des événements se faisait sur un groupe Facebook, mais l'association souhaitait gagner en autonomie et disposer de son propre site web.
@@ -223,6 +229,8 @@ Des points supplémentaires seront attribués pour les initiatives allant au-del
 - **Monitoring / logging** centralisé
 - **Pre-commit hooks** pour exécuter linting/formatage avant chaque commit (Husky, lefthook...)
 - **Environnements de staging** séparés de la production
+- **Dependabot** pour maintenir les dépedances à jour
+- **Inspection des vulnéravilités** outils comme Snyk pour alerter sur la sécurité
 - Toute autre amélioration que vous jugez pertinente et que vous pouvez justifier
 
 ---
