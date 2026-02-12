@@ -123,8 +123,7 @@ jobs :
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ steps.backend_meta.outputs.tags }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ steps.backend_git.outputs.sha }}
+            ${{ steps.backend_meta.outputs.tags }}:${{ steps.backend_git.outputs.sha }}
   
   build-and-deploy-frontend :
     needs : test-frontend
@@ -165,8 +164,7 @@ jobs :
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ steps.frontend_meta.outputs.tags }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ steps.frontend_git.outputs.sha }}
+            ${{ steps.frontend_meta.outputs.tags }}:${{ steps.frontend_git.outputs.sha }}
 
 
       
