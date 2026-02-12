@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { deleteEvent, listEvents } from "../api/events";
 import type { Event } from "../types";
-import { listEvents, deleteEvent } from "../api/events";
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: besoin d'y entrer à chaque refreshkey
   useEffect(() => {
     let cancelled = false;
     listEvents(true)
@@ -32,7 +33,9 @@ export default function AdminEventsPage() {
   return (
     <main className="max-w-5xl mx-auto px-4 py-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-blue-900">Gérer les événements</h2>
+        <h2 className="text-2xl font-bold text-blue-900">
+          Gérer les événements
+        </h2>
         <Link
           to="/admin/events/new"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
@@ -84,6 +87,7 @@ export default function AdminEventsPage() {
                     <button
                       onClick={() => handleDelete(event.id)}
                       className="text-red-600 hover:underline text-sm"
+                      type="button"
                     >
                       Supprimer
                     </button>

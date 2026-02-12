@@ -1,5 +1,5 @@
-import { migrate } from "./db/migrate.ts";
 import { handleAuthRoutes } from "./auth/routes.ts";
+import { migrate } from "./db/migrate.ts";
 import { handleEventRoutes } from "./events/routes.ts";
 
 await migrate();
@@ -46,7 +46,10 @@ const server = Bun.serve({
       return eventResponse;
     }
 
-    return Response.json({ error: "Not found" }, { status: 404, headers: corsHeaders() });
+    return Response.json(
+      { error: "Not found" },
+      { status: 404, headers: corsHeaders() },
+    );
   },
 });
 

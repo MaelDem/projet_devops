@@ -30,6 +30,7 @@ export default function App() {
                 <button
                   onClick={handleLogout}
                   className="hover:underline cursor-pointer"
+                  type="button"
                 >
                   Déconnexion
                 </button>
