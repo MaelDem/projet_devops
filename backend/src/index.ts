@@ -2,11 +2,8 @@ import { handleAuthRoutes } from "./auth/routes.ts";
 import { migrate } from "./db/migrate.ts";
 import { handleEventRoutes } from "./events/routes.ts";
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> f2b9d524162d0bac12254e355ee71529afbceb93
 await migrate();
 
 function corsHeaders(): HeadersInit {
