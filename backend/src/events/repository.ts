@@ -5,7 +5,9 @@ export async function listEvents(all = false): Promise<Event[]> {
   if (all) {
     return sql<Event[]>`SELECT * FROM events ORDER BY date ASC`;
   }
-  return sql<Event[]>`SELECT * FROM events WHERE date >= NOW() ORDER BY date ASC`;
+  return sql<
+    Event[]
+  >`SELECT * FROM events WHERE date >= NOW() ORDER BY date ASC`;
 }
 
 export async function getEvent(id: number): Promise<Event | undefined> {
