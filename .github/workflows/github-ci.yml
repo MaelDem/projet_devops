@@ -25,8 +25,9 @@ jobs :
         run : bun install
       
       - name : Run Linters
-        run : bun run check
-        run : bun run ci
+        run : | 
+          bun run check 
+          bun run ci
 
       - name: Commit changes if any
         env:
