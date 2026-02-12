@@ -103,10 +103,6 @@ jobs :
           tags : |
             type=sha, format=short
 
-      - name: Get short commit SHA
-        id: backend_git
-        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -125,7 +121,7 @@ jobs :
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ steps.backend_meta.outputs.tags }}:${{ steps.backend_git.outputs.sha }}
+            ${{ steps.backend_meta.outputs.tags }}
   
   build-and-deploy-frontend :
     needs : test-frontend
@@ -146,10 +142,6 @@ jobs :
           tags : |
             type=sha, format=short
 
-      - name: Get short commit SHA
-        id: frontend_git
-        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -168,8 +160,7 @@ jobs :
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ steps.frontend_meta.outputs.tags }}:${{ steps.frontend_git.outputs.sha }}
-
+            ${{ steps.frontend_meta.outputs.tags }}
 
       
 
