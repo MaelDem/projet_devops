@@ -4,7 +4,6 @@ import { handleEventRoutes } from "./events/routes.ts";
 
 
 
-
 await migrate();
 
 function corsHeaders(): HeadersInit {

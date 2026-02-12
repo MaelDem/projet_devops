@@ -100,6 +100,8 @@ jobs :
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
+          tags : |
+            type=sha, format=short
 
       - name: Get short commit SHA
         id: backend_git
@@ -123,7 +125,7 @@ jobs :
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ steps.backend_meta.outputs.image }}:${{ steps.backend_git.outputs.sha }}
+            ${{ steps.backend_meta.outputs.tags }}:${{ steps.backend_git.outputs.sha }}
   
   build-and-deploy-frontend :
     needs : test-frontend
@@ -141,6 +143,8 @@ jobs :
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
+          tags : |
+            type=sha, format=short
 
       - name: Get short commit SHA
         id: frontend_git
@@ -164,7 +168,7 @@ jobs :
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ steps.frontend_meta.outputs.image }}:${{ steps.frontend_git.outputs.sha }}
+            ${{ steps.frontend_meta.outputs.tags }}:${{ steps.frontend_git.outputs.sha }}
 
 
       
