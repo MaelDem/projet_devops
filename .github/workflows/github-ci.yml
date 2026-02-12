@@ -1,0 +1,28 @@
+name : Pipeline
+
+on:
+  push : 
+    branches : pipeline
+    paths : 
+      - 'docker-compose.yml' 
+      - 'backend/**'
+      - 'frontend/**'
+
+jobs : 
+  linting : 
+    runs-on : ubuntu-latest
+  
+    steps : 
+      -name : Checkout branch 
+      uses : actions/checkout@v4
+      with: 
+        fetch-depth: 0
+
+      -name : Setup Bun
+      uses : oven-sh/setup-bun@v2
+
+      -name : Install dependencies
+      run : bun install
+
+      -name : Run Linters
+      run : bun run ci 
