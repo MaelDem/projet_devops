@@ -3,6 +3,8 @@ import { migrate } from "./db/migrate.ts";
 import { handleEventRoutes } from "./events/routes.ts";
 
 
+
+
 await migrate();
 
 function corsHeaders(): HeadersInit {
