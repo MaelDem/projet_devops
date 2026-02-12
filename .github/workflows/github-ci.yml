@@ -58,7 +58,8 @@ jobs :
   test-frontend :
 
     needs : linting
-    runs-on : ubuntu-latest
+    runs-on : ubuntu-latest4
+    working-directory: ./frontend
 
     steps : 
       - name : Checkout branch
@@ -71,12 +72,16 @@ jobs :
 
       - name : Install dependencies
         run : bun install
+
+      - name : Run tests  
+        run : bun test
 
 
   test-backend : 
 
     needs : linting
     runs-on : ubuntu-latest
+    working-directory: ./backend
 
     steps : 
       - name : Checkout branch
@@ -89,6 +94,10 @@ jobs :
 
       - name : Install dependencies
         run : bun install
+
+      - name : Run tests
+        run : bun test
+
 
   build-and-deploy-backend :
     needs : test-backend
