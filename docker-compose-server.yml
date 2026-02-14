@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: clubpoisson
+      POSTGRES_USER: clubpoisson
+      POSTGRES_PASSWORD: clubpoisson
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clubpoisson -d clubpoisson"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    image: ghcr.io/maeldem/projet_devops/backend:${IMAGE_TAG}
+    ports:
+      - "3000:3000"
+    environment:
+      PGHOST: postgres
+      PGDATABASE: clubpoisson
+      PGUSER: clubpoisson
+      PGPASSWORD: clubpoisson
+    healthcheck:
+      test:
+        ["CMD", "bun", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/maeldem/projet_devops/frontend:${IMAGE_TAG}
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
