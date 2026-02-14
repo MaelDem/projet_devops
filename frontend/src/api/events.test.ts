@@ -25,9 +25,7 @@ beforeEach(() => {
 
 // Vérification de la récupérationdes données
 test("listEvents récupère les données avec succès", async () => {
-  const mockData = [
-  { id: 1, title: "Poisson de test" }
-  ] as any;
+  const mockData = [{ id: 1, title: "Poisson de test" }] as any;
 
   (globalThis.fetch as any).mockImplementation(() =>
     Promise.resolve({
