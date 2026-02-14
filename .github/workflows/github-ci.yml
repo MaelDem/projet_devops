@@ -7,6 +7,7 @@ on:
       - 'docker-compose.yml' 
       - 'backend/**'
       - 'frontend/**'
+      - '.github/workflows/github-ci.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -58,7 +59,7 @@ jobs :
   test-frontend :
 
     needs : linting
-    runs-on : ubuntu-latest
+    runs-on : ubuntu-latest4
 
     steps : 
       - name : Checkout branch
@@ -71,6 +72,12 @@ jobs :
 
       - name : Install dependencies
         run : bun install
+        working-directory: ./frontend
+
+
+      - name : Run tests  
+        run : bun test
+        working-directory: ./frontend
 
 
   test-backend : 
@@ -89,6 +96,13 @@ jobs :
 
       - name : Install dependencies
         run : bun install
+        working-directory: ./backend
+
+
+      - name : Run tests
+        run : bun test
+        working-directory: ./backend
+
 
   build-and-deploy-backend :
     needs : test-backend
