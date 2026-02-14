@@ -2,7 +2,7 @@ name : Pipeline
 
 on:
   push : 
-    branches : pipeline
+    branches : main
     paths : 
       - 'docker-compose.yml' 
       - 'backend/**'
