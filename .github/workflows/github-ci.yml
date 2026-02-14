@@ -9,9 +9,9 @@ on:
       - 'frontend/**'
       - '.github/workflows/github-ci.yml'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
@@ -43,7 +43,7 @@ jobs :
       - name: Commit changes if any
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ github.actor != 'github-actions' }}
+        # if: ${{ github.actor != 'github-actions' }}
         run: |
           git diff --exit-code || {
             echo "Changes detected. Committing changes..."
@@ -59,7 +59,7 @@ jobs :
   test-frontend :
 
     needs : linting
-    runs-on : ubuntu-latest4
+    runs-on : ubuntu-latest
 
     steps : 
       - name : Checkout branch
