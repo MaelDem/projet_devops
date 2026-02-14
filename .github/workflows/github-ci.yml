@@ -102,6 +102,8 @@ jobs :
   build-and-push-backend :
     needs : test-backend
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.backend_meta.outputs.version }}
 
     steps:
       - name: Checkout repository
@@ -140,6 +142,8 @@ jobs :
   build-and-push-frontend :
     needs : test-frontend
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.frontend_meta.outputs.version }}
 
     steps:
 
@@ -200,7 +204,11 @@ jobs :
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            IMAGE_TAG=${GITHUB_SHA::7}
+            IMAGE_TAG="${{ needs.build-and-push-backend.outputs.image_tag }}"
+            if [ -z "$IMAGE_TAG" ]; then
+              echo "Error: IMAGE_TAG is not set. Exiting."
+              exit 1
+            fi
             docker compose -f ~/docker-compose-server.yml down
             docker image prune -f
             docker pull ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/backend:${IMAGE_TAG}
