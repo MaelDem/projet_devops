@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeEach, mock } from "bun:test";
+import { beforeEach, describe, expect, mock, test } from "bun:test";
 import * as eventLogic from "../config/global-mocks";
 
 // --- ÉTAPE 1 : LES MOCKS DOIVENT ÊTRE DÉCLARÉS AVANT TOUT IMPORT ---
@@ -22,7 +22,6 @@ mock.module("../../auth/guard", () => ({
 const { handleEventRoutes } = await import("../../events/routes");
 
 describe("Event Routes Handler", () => {
-  
   beforeEach(() => {
     eventLogic.resetEvents();
     authReturnValue = null; // Par défaut, l'auth passe
@@ -33,17 +32,17 @@ describe("Event Routes Handler", () => {
     // On ajoute ?all=true pour contourner le filtre de date NOW()
     const req = new Request("http://localhost/api/events?all=true");
     const url = new URL(req.url);
-    
+
     const response = await handleEventRoutes(req, url);
     const data = await response?.json();
 
     expect(response?.status).toBe(200);
-    expect(data.length).toBe(3); 
+    expect(data.length).toBe(3);
   });
 
   test("POST /api/events - Crée un événement (Auth OK)", async () => {
     authReturnValue = null; // On force explicitement le succès
-    
+
     const payload = { title: "Soirée Bun", date: "2026-01-01" };
     const req = new Request("http://localhost/api/events", {
       method: "POST",
@@ -53,7 +52,7 @@ describe("Event Routes Handler", () => {
 
     const response = await handleEventRoutes(req, new URL(req.url));
     expect(response?.status).toBe(201);
-    
+
     const data = await response?.json();
     expect(data.title).toBe("Soirée Bun");
   });
@@ -61,8 +60,8 @@ describe("Event Routes Handler", () => {
   test("DELETE /api/events/:id - Supprime l'événement", async () => {
     authReturnValue = null;
 
-    const req = new Request("http://localhost/api/events/1", { 
-      method: "DELETE" 
+    const req = new Request("http://localhost/api/events/1", {
+      method: "DELETE",
     });
     const response = await handleEventRoutes(req, new URL(req.url));
 
@@ -75,9 +74,9 @@ describe("Event Routes Handler", () => {
     // On simule une erreur 401
     authReturnValue = Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const req = new Request("http://localhost/api/events", { 
+    const req = new Request("http://localhost/api/events", {
       method: "POST",
-      body: JSON.stringify({ title: "Test", date: "2026" })
+      body: JSON.stringify({ title: "Test", date: "2026" }),
     });
     const response = await handleEventRoutes(req, new URL(req.url));
 
