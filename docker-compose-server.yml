@@ -40,7 +40,7 @@ services:
         condition: service_healthy
 
   backend:
-    build: ./backend
+    image: ghcr.io/maeldem/projet_devops/backend:${IMAGE_TAG}
     expose:
       - "3000"
     environment:
@@ -60,7 +60,7 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./frontend
+    image: ghcr.io/maeldem/projet_devops/frontend:${IMAGE_TAG}
     expose:
       - "80"
     healthcheck:
