@@ -1,0 +1,10 @@
+{
+  "backend/**/*.{ts,js}": [
+    "bun run --cwd backend check",
+    "bun run --cwd backend ci"
+  ],
+  "frontend/**/*.{ts,js,tsx}": [
+    "bun run --cwd frontend check",
+    "bun run --cwd frontend ci"
+  ]
+}
