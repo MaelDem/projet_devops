@@ -9,6 +9,8 @@ export async function login(
   return res.json();
 }
 
+
+
 export async function checkAuth(
   token: string,
 ): Promise<{ authenticated: boolean }> {
