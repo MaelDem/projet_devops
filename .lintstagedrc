@@ -1,10 +1,5 @@
 {
-  "backend/**/*.{ts,js}": [
-    "bun run --cwd backend check",
-    "bun run --cwd backend ci"
-  ],
-  "frontend/**/*.{ts,js,tsx}": [
-    "bun run --cwd frontend check",
-    "bun run --cwd frontend ci"
+  "**/*.{js,ts,jsx,tsx,json}": [
+    "bunx @biomejs/biome check --write --no-errors-on-unmatched"
   ]
 }
