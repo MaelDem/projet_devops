@@ -7,6 +7,7 @@ on:
       - 'docker-compose.yml' 
       - 'backend/**'
       - 'frontend/**'
+      - 'nginx.conf'
       - '.github/workflows/github-ci.yml'
 
 env:
@@ -188,13 +189,13 @@ jobs :
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: copy docker-compose.yml to server
+      - name: copy docker-compose.yml and nginx.conf to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: docker-compose-server.yml
+          source: "docker-compose-server.yml,nginx.conf"
           target: ~/
 
       - name: Deploy to server

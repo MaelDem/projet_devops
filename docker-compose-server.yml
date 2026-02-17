@@ -1,4 +1,13 @@
 services:
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
   postgres:
     image: postgres:17
     ports:
@@ -32,8 +41,8 @@ services:
 
   backend:
     image: ghcr.io/maeldem/projet_devops/backend:${IMAGE_TAG}
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       PGHOST: postgres
       PGDATABASE: clubpoisson
@@ -52,8 +61,8 @@ services:
 
   frontend:
     image: ghcr.io/maeldem/projet_devops/frontend:${IMAGE_TAG}
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost/ > /dev/null || exit 1"]
       interval: 10s
