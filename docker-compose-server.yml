@@ -129,6 +129,12 @@ services:
     volumes:
       - ./infra/monitoring/loki-config.yml:/etc/loki/local-config.yaml
       - loki-data:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3100/ready > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     # Loki n'est PAS exposé — Grafana suffit
     # Pour exposer :
     # ports:
