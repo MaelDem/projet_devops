@@ -30,6 +30,13 @@ jobs :
       - name : Setup Bun
         uses : oven-sh/setup-bun@v2
 
+      - name : Cache Bun dependencies
+        uses : actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-bun-
+
       - name : Install dependencies
         run : bun install
       
@@ -67,6 +74,13 @@ jobs :
       - name : Setup Bun
         uses : oven-sh/setup-bun@v2
 
+      - name : Cache Bun dependencies
+        uses : actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-bun-
+
       - name : Install dependencies
         run : bun install
         working-directory: ./frontend
@@ -90,6 +104,13 @@ jobs :
 
       - name : Setup Bun
         uses : oven-sh/setup-bun@v2
+
+      - name : Cache Bun dependencies
+        uses : actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-bun-
 
       - name : Install dependencies
         run : bun install
