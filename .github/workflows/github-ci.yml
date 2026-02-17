@@ -4,11 +4,12 @@ on:
   push : 
     branches : main
     paths : 
-      - 'docker-compose.yml' 
+      - 'docker-compose-server.yml' 
       - 'backend/**'
       - 'frontend/**'
       - 'nginx.conf'
       - '.github/workflows/github-ci.yml'
+      - 'infra/**'
 
 env:
   REGISTRY: ghcr.io
@@ -195,7 +196,9 @@ jobs :
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose-server.yml,nginx.conf"
+          source: |
+            docker-compose-server.yml
+            infra/
           target: ~/
 
       - name: Deploy to server
@@ -210,8 +213,17 @@ jobs :
               echo "Error: IMAGE_TAG is not set. Exiting."
               exit 1
             fi
+
+            export IMAGE_TAG="$IMAGE_TAG"
+            export POSTGRES_DB="${{ secrets.POSTGRES_DB }}"
+            export POSTGRES_USER="${{ secrets.POSTGRES_USER }}"
+            export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
+            export GRAFANA_ADMIN_USER="${{ secrets.GRAFANA_ADMIN_USER }}"
+            export GRAFANA_ADMIN_PASSWORD='${{ secrets.GRAFANA_ADMIN_PASSWORD }}'
+            export LETSENCRYPT_PATH="${{ secrets.LETSENCRYPT_PATH }}"
+
             docker compose -f ~/docker-compose-server.yml down
             docker image prune -f
             docker pull ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/backend:${IMAGE_TAG}
             docker pull ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/frontend:${IMAGE_TAG}
-            IMAGE_TAG=${IMAGE_TAG} docker compose -f ~/docker-compose-server.yml up -d
+            docker compose -f ~/docker-compose-server.yml up -d
