@@ -22,6 +22,7 @@ export default function App() {
             <Link to="/" className="hover:underline">
               Accueil
             </Link>
+
             {isAuthenticated ? (
               <>
                 <Link to="/admin" className="hover:underline">
@@ -30,6 +31,7 @@ export default function App() {
                 <button
                   onClick={handleLogout}
                   className="hover:underline cursor-pointer"
+                  type="button"
                 >
                   Déconnexion
                 </button>
