@@ -119,16 +119,72 @@ jobs :
         run : bun test
         working-directory: ./backend
 
+  snyk-security-frontend:
+    needs: test-frontend
+    if: |
+      (github.event_name == 'pull_request' && github.base_ref == 'dev') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: bun install
+
+      - name: Scan Frontend
+        working-directory: ./frontend
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --auth=${{ secrets.SNYK_TOKEN }}
+
+  snyk-security-backend:
+    needs: test-backend
+    if: |
+      (github.event_name == 'pull_request' && github.base_ref == 'dev') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: bun install
+
+      - name: Scan Backend
+        working-directory: ./backend
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --auth=${{ secrets.SNYK_TOKEN }}
+
 
   build-and-push-backend :
-    needs : test-backend
+    needs: snyk-security-backend
     if: |
       always() &&
       (
         (github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'dev') ||
         (github.event_name == 'push' && github.ref == 'refs/heads/main')
       ) &&
-      (needs.test-backend.result == 'success' || needs.test-backend.result == 'skipped')
+      (needs.snyk-security-backend.result == 'success' || needs.snyk-security-backend.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.backend_meta.outputs.version }}
@@ -169,14 +225,14 @@ jobs :
             ${{ steps.backend_meta.outputs.tags }}
   
   build-and-push-frontend :
-    needs : test-frontend
+    needs : snyk-security-frontend
     if: |
       always() &&
       (
         (github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'dev') ||
         (github.event_name == 'push' && github.ref == 'refs/heads/main')
       ) &&
-      (needs.test-frontend.result == 'success' || needs.test-frontend.result == 'skipped')
+      (needs.snyk-security-frontend.result == 'success' || needs.snyk-security-frontend.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.frontend_meta.outputs.version }}
