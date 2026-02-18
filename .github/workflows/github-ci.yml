@@ -345,7 +345,7 @@ jobs :
           key: ${{ secrets.STAGE_SSH_KEY }}
           source: |
             docker-compose-stage.yml
-            infra/
+            infra/**
           target: ~/
 
       - name: Deploy to stage server
