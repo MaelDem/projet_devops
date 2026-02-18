@@ -387,9 +387,7 @@ jobs :
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: |
-            docker-compose-server.yml
-            infra/
+          source: docker-compose-server.yml,infra
           target: ~/
 
       - name: Deploy to server
