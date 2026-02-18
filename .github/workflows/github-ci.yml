@@ -343,9 +343,7 @@ jobs :
           host: ${{ secrets.STAGE_SSH_HOST }}
           username: ${{ secrets.STAGE_SSH_USER }}
           key: ${{ secrets.STAGE_SSH_KEY }}
-          source: |
-            docker-compose-stage.yml
-            infra/
+          source: docker-compose-stage.yml,infra
           target: ~/
 
       - name: Deploy to stage server
@@ -389,9 +387,7 @@ jobs :
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: |
-            docker-compose-server.yml
-            infra/
+          source: docker-compose-server.yml,infra
           target: ~/
 
       - name: Deploy to server
