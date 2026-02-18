@@ -9,8 +9,9 @@ WORKDIR /usr/src/app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
-# Copy source code and build the app
+# Copy source code, run tests and build the app
 COPY . .
+RUN bun test
 RUN bun run build
 
 # =====================
