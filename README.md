@@ -14,7 +14,7 @@ Projet monorepo avec un backend Bun/TypeScript, un frontend React/Vite, et une b
 docker compose up --build
 ```
 
-Points d acces utiles en local :
+Points d'accès utiles en local :
 
 - App (via reverse proxy): `http://localhost`
 - Backend direct: `http://localhost:3000`
@@ -29,7 +29,7 @@ Points d acces utiles en local :
 
 Workflow GitHub Actions: [.github/workflows/github-ci.yml](.github/workflows/github-ci.yml)
 
-Declencheurs :
+Déclencheurs :
 
 - Pull request vers `dev`, `main`, ou `release/*`
 - Push sur `main` et `release/*`
@@ -43,7 +43,7 @@ Etapes principales :
 5. **Deploiement staging** (branche `release/*`) : copie de [docker-compose-stage.yml](docker-compose-stage.yml) et `infra/`, puis `docker compose up -d` par SSH.
 6. **Deploiement production** (branche `main`) : copie de [docker-compose-server.yml](docker-compose-server.yml) et `infra/`, puis `docker compose up -d` par SSH.
 
-Schema (simplifie) :
+Schema (simplifié) :
 
 ```mermaid
 flowchart TD
@@ -60,12 +60,12 @@ flowchart TD
 	I -->|main| K["Deploy Prod (SSH + docker compose)"]
 ```
 
-Secrets utilises (exemples) : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `POSTGRES_*`, `GRAFANA_*`, `LETSENCRYPT_PATH`.
+Secrets utilisés (exemples) : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `POSTGRES_*`, `GRAFANA_*`, `LETSENCRYPT_PATH`.
 
 ## Choix techniques (et pourquoi)
 
 - **Nginx reverse proxy** pour servir le frontend et router `/api` vers le backend.
-- **GitHub Actions + GHCR** pour une CI/CD integree et un registre prive.
+- **GitHub Actions + GHCR** pour une CI/CD integrée et un registre privé.
 - **Monitoring/Logging** avec Prometheus, Grafana, Loki, Promtail, cAdvisor, Node Exporter.
 
 ## Bonus implementés
@@ -73,7 +73,7 @@ Secrets utilises (exemples) : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `
 - Reverse proxy Nginx en dev/stage/prod
 - HTTPS en stage/prod via certificats (LetsEncrypt)
 - Healthchecks Docker sur les services critiques
-- Monitoring et logging centralises (Grafana + Prometheus + Loki)
+- Monitoring et logging centralisés (Grafana + Prometheus + Loki)
 - Build cache Docker (Buildx cache) dans la CI
 - Environnement de staging separé via [docker-compose-stage.yml](docker-compose-stage.yml)
-- Scan de vulnerabilites Snyk dans la CI
+- Scan de vulnerabilités Snyk dans la CI
