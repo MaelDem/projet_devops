@@ -68,7 +68,7 @@ jobs :
               git config --global user.name "github-actions"
               git config --global user.email "actions@github.com"
 
-              git add .
+              git add frontend/ backend/
               git commit -m "Apply code formatting and linting fixes"
               git push origin HEAD:$BRANCH_NAME
             }
