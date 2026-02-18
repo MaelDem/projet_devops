@@ -1,0 +1,211 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres_stage
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clubpoisson_stage}
+      POSTGRES_USER: ${POSTGRES_USER:-clubpoisson_stage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clubpoisson_stage}
+    volumes:
+      - pgdata-stage:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clubpoisson_stage} -d ${POSTGRES_DB:-clubpoisson_stage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - stage_net
+
+  adminer:
+    image: adminer
+    container_name: adminer_stage
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    ports:
+      - "${STAGE_ADMINER_PORT:-4646}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - stage_net
+
+  backend:
+    image: ghcr.io/maeldem/projet_devops/backend:${IMAGE_TAG}
+    container_name: backend_stage
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    expose:
+      - "3000"
+    ports:
+      - "127.0.0.1:${STAGE_BACKEND_PORT:-3000}:3000"
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB:-clubpoisson_stage}
+      PGUSER: ${POSTGRES_USER:-clubpoisson_stage}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-clubpoisson_stage}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ["CMD", "bun", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - stage_net
+
+  frontend:
+    image: ghcr.io/maeldem/projet_devops/frontend:${IMAGE_TAG}
+    container_name: frontend_stage
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    ports:
+      - "127.0.0.1:${STAGE_FRONTEND_PORT:-4545}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - stage_net
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki_stage
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./infra/monitoring/loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data-stage:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3100/ready > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - stage_net
+
+  promtail:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM grafana/promtail:latest
+        RUN apt-get update && apt-get install -y curl
+    container_name: promtail_stage
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infra/monitoring/promtail.prod.yaml:/etc/promtail/config.yml
+    depends_on:
+      - loki
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9080/ready > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - stage_net
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana_stage
+    ports:
+      - "${STAGE_GRAFANA_PORT:-4747}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - grafana-data-stage:/var/lib/grafana
+    depends_on:
+      - loki
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - stage_net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus_stage
+    volumes:
+      - ./infra/monitoring/prometheus.prod.yml:/etc/prometheus/prometheus.yml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/ready > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - stage_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor_stage
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/metrics > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - stage_net
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node_exporter_stage
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9100/metrics > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - stage_net
+
+networks:
+  stage_net:
+    driver: bridge
+
+volumes:
+  pgdata-stage:
+  grafana-data-stage:
+  loki-data-stage:
