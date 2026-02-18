@@ -62,6 +62,8 @@ jobs :
         run: |
           BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
 
+          echo $BRANCH_NAME
+
           git diff --exit-code || {
             echo "Changes detected. Committing changes..."
 
