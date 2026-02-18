@@ -10,7 +10,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'nginx.conf'
-      - '.github/workflows/github-ci.yml'
+      # - '.github/workflows/github-ci.yml'
       - 'infra/**'
   push : 
     branches : main
@@ -19,7 +19,7 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'nginx.conf'
-      - '.github/workflows/github-ci.yml'
+      # - '.github/workflows/github-ci.yml'
       - 'infra/**'
 
 env:
