@@ -57,6 +57,8 @@ jobs :
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
+
           git diff --exit-code || {
             echo "Changes detected. Committing changes..."
 
@@ -65,7 +67,7 @@ jobs :
 
               git add .
               git commit -m "Apply code formatting and linting fixes"
-              git push origin HEAD
+              git push origin HEAD:$BRANCH_NAME
             }
   
   test-frontend :
