@@ -48,23 +48,25 @@ jobs :
         run : bun install
       
       - name : Run Linters
-        run : bun run ci
+        run : |
+          bun run check 
+          bun run ci
 
       # pour éviter de commiter les changements de formatage et linting (qui peut être source de conflits) automatiquement
-      # - name: Commit changes if any
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     git diff --exit-code || {
-      #       echo "Changes detected. Committing changes..."
+      - name: Commit changes if any
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git diff --exit-code || {
+            echo "Changes detected. Committing changes..."
 
-      #         git config --global user.name "github-actions"
-      #         git config --global user.email "actions@github.com"
+              git config --global user.name "github-actions"
+              git config --global user.email "actions@github.com"
 
-      #         git add .
-      #         git commit -m "Apply code formatting and linting fixes"
-      #         git push origin HEAD
-      #       }
+              git add .
+              git commit -m "Apply code formatting and linting fixes"
+              git push origin HEAD
+            }
   
   test-frontend :
 
