@@ -22,6 +22,7 @@ export default function App() {
             <Link to="/" className="hover:underline">
               Accueil
             </Link>
+
             {isAuthenticated ? (
               <>
                 <Link to="/admin" className="hover:underline">
