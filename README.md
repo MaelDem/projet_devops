@@ -60,7 +60,7 @@ flowchart TD
 	I -->|main| K["Deploy Prod (SSH + docker compose)"]
 ```
 
-Secrets utilisés (exemples) : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `POSTGRES_*`, `GRAFANA_*`, `LETSENCRYPT_PATH`.
+Secrets utilisés : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `STAGE_SSH_HOST`, `STAGE_SSH_USER`, `STAGE_SSH_KEY`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`, `LETSENCRYPT_PATH`.
 
 ## Choix techniques (et pourquoi)
 
