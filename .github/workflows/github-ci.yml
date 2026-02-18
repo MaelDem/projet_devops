@@ -337,28 +337,13 @@ jobs :
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug workspace before SCP
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Root files:"
-          ls -la
-          echo "docker-compose-stage.yml:"
-          ls -la docker-compose-stage.yml || echo "missing"
-          echo "infra folder:"
-          ls -la infra || echo "infra missing"
-          echo "infra recursive:"
-          ls -R infra || echo "infra recursive missing"
-
       - name: copy docker-compose-stage.yml and infra/ to stage server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.STAGE_SSH_HOST }}
           username: ${{ secrets.STAGE_SSH_USER }}
           key: ${{ secrets.STAGE_SSH_KEY }}
-          source: |
-            docker-compose-stage.yml
-            infra/**
+          source: docker-compose-stage.yml,infra
           target: ~/
 
       - name: Deploy to stage server
