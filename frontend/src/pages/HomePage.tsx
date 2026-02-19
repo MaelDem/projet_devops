@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { Event } from "../types";
 import { listEvents } from "../api/events";
 import EventCard from "../components/EventCard";
+import type { Event } from "../types";
 
 export default function HomePage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -33,15 +33,15 @@ export default function HomePage() {
             Communauté
           </h3>
           <p className="text-gray-600">
-            Échangez avec d'autres passionnés de poissons et partagez vos expériences.
+            Échangez avec d'autres passionnés de poissons et partagez vos
+            expériences.
           </p>
         </div>
         <div className="bg-white rounded-xl shadow p-6">
-          <h3 className="text-xl font-semibold text-blue-800 mb-2">
-            Savoir
-          </h3>
+          <h3 className="text-xl font-semibold text-blue-800 mb-2">Savoir</h3>
           <p className="text-gray-600">
-            Apprenez l'entretien des espèces, la mise en place d'aquariums et la chimie de l'eau.
+            Apprenez l'entretien des espèces, la mise en place d'aquariums et la
+            chimie de l'eau.
           </p>
         </div>
         <div className="bg-white rounded-xl shadow p-6">
@@ -49,8 +49,8 @@ export default function HomePage() {
             Conservation
           </h3>
           <p className="text-gray-600">
-            Soutenez les efforts de protection des écosystèmes aquatiques et
-            des espèces menacées.
+            Soutenez les efforts de protection des écosystèmes aquatiques et des
+            espèces menacées.
           </p>
         </div>
       </div>

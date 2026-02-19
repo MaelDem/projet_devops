@@ -1,35 +1,36 @@
 services:
   postgres:
     image: postgres:17
-    container_name: postgres
+    container_name: postgres_stage
     logging:
       driver: "json-file"
       options:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-    ports:
-      - "5432:5432"
     environment:
-      POSTGRES_DB: clubpoisson
-      POSTGRES_USER: clubpoisson
-      POSTGRES_PASSWORD: clubpoisson
+      POSTGRES_DB: ${POSTGRES_DB:-clubpoisson_stage}
+      POSTGRES_USER: ${POSTGRES_USER:-clubpoisson_stage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clubpoisson_stage}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata-stage:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U clubpoisson -d clubpoisson"]
+      test:
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clubpoisson_stage} -d ${POSTGRES_DB:-clubpoisson_stage}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - stage_net
 
   adminer:
     image: adminer
-    container_name: adminer
+    container_name: adminer_stage
     logging:
       driver: "json-file"
       options:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
     ports:
-      - "8080:8080"
+      - "${STAGE_ADMINER_PORT:-4646}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,21 +40,25 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - stage_net
 
   backend:
-    build: ./backend
-    container_name: backend
+    image: ghcr.io/maeldem/projet_devops/backend:${IMAGE_TAG}
+    container_name: backend_stage
     logging:
       driver: "json-file"
       options:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    expose:
+      - "3000"
     ports:
-      - "3000:3000"
+      - "127.0.0.1:${STAGE_BACKEND_PORT:-3000}:3000"
     environment:
       PGHOST: postgres
-      PGDATABASE: clubpoisson
-      PGUSER: clubpoisson
-      PGPASSWORD: clubpoisson
+      PGDATABASE: ${POSTGRES_DB:-clubpoisson_stage}
+      PGUSER: ${POSTGRES_USER:-clubpoisson_stage}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-clubpoisson_stage}
     depends_on:
       postgres:
         condition: service_healthy
@@ -64,16 +69,18 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - stage_net
 
   frontend:
-    build: ./frontend
-    container_name: frontend
+    image: ghcr.io/maeldem/projet_devops/frontend:${IMAGE_TAG}
+    container_name: frontend_stage
     logging:
       driver: "json-file"
       options:
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-    expose:
-      - "80"
+    ports:
+      - "127.0.0.1:${STAGE_FRONTEND_PORT:-4545}:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -83,45 +90,24 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-
-  proxy:
-    image: nginx:alpine
-    container_name: nginx_reverse_proxy
-    logging:
-      driver: "json-file"
-      options:
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
-    ports:
-      - "80:80"
-    volumes:
-      - ./infra/nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      frontend:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "nginx -t || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    networks:
+      - stage_net
 
   loki:
     image: grafana/loki:2.9.0
-    container_name: loki
-    ports:
-      - "3100:3100"
+    container_name: loki_stage
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./infra/monitoring/loki-config.yml:/etc/loki/local-config.yaml
-      - loki-data:/loki
+      - loki-data-stage:/loki
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3100/ready > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
+    networks:
+      - stage_net
 
   promtail:
     build:
@@ -129,63 +115,62 @@ services:
       dockerfile_inline: |
         FROM grafana/promtail:latest
         RUN apt-get update && apt-get install -y curl
-    container_name: promtail
+    container_name: promtail_stage
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./infra/monitoring/promtail.dev.yaml:/etc/promtail/config.yml
+      - ./infra/monitoring/promtail.prod.yaml:/etc/promtail/config.yml
     depends_on:
-      loki:
-        condition: service_healthy
+      - loki
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:9080/ready > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
+    networks:
+      - stage_net
 
   grafana:
     image: grafana/grafana:10.2.0
-    container_name: grafana
+    container_name: grafana_stage
     ports:
-      - "3001:3000"
+      - "${STAGE_GRAFANA_PORT:-4747}:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      # plus de reverse proxy, Grafana tourne en direct
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
     volumes:
-      - grafana-data:/var/lib/grafana
+      - grafana-data-stage:/var/lib/grafana
     depends_on:
-      loki:
-        condition: service_healthy
-      prometheus:
-        condition: service_healthy
+      - loki
+      - prometheus
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
+    networks:
+      - stage_net
 
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
-    ports:
-      - "9090:9090"
+    container_name: prometheus_stage
     volumes:
-      - ./infra/monitoring/prometheus.dev.yml:/etc/prometheus/prometheus.yml
+      - ./infra/monitoring/prometheus.prod.yml:/etc/prometheus/prometheus.yml
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/ready > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
+    networks:
+      - stage_net
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    ports:
-      - "8081:8080"
+    container_name: cadvisor_stage
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -197,12 +182,12 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    networks:
+      - stage_net
 
   node-exporter:
     image: prom/node-exporter
-    container_name: node-exporter
-    ports:
-      - "9100:9100"
+    container_name: node_exporter_stage
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -213,8 +198,14 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    networks:
+      - stage_net
+
+networks:
+  stage_net:
+    driver: bridge
 
 volumes:
-  pgdata:
-  grafana-data:
-  loki-data:
+  pgdata-stage:
+  grafana-data-stage:
+  loki-data-stage:

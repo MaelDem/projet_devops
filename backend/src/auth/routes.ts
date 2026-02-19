@@ -1,4 +1,4 @@
-import { createSession, validateSession, deleteSession } from "./sessions.ts";
+import { createSession, deleteSession, validateSession } from "./sessions.ts";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin";
 
