@@ -188,7 +188,6 @@ Secrets utilisés : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `STAGE_SSH_
 
 - **Sécurité / maintenance** :
   - **Snyk** en CI pour détecter des vulnérabilités de dépendances.
-  - **Dependabot** pour proposer des mises à jour automatiques : [.github/dependabot.yml](.github/dependabot.yml)
   - **Pre-commit** (Husky + lint-staged) pour éviter de commit du code mal formaté : [.husky/pre-commit](.husky/pre-commit)
 
 ## Bonus implementés
@@ -203,7 +202,6 @@ Secrets utilisés : `SNYK_TOKEN`, `SSH_HOST`, `SSH_USER`, `SSH_KEY`, `STAGE_SSH_
 - Environnement de staging separé via [docker-compose-stage.yml](docker-compose-stage.yml)
 - Scan de vulnerabilités Snyk dans la CI
 - Hooks **pre-commit** (Husky + lint-staged + Biome)
-- MAJ auto des dépendances (Dependabot)
 
 ## Autres bonus
 - Let’s Encrypt, à cause de leur politique, ne nous a pas fourni de certificat pour une instance EC2 temporaire ; c’est pourquoi nous sommes passés par un sous-domaine Hostinger (goupe4.galyson.com et dev.galyson.com).
